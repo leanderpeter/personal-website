@@ -6,9 +6,20 @@ theme = "PaperMod"
 [params]
   author = "Leander Peter"
   ShowReadingTime = true
-  ShowShareButtons = true
+  ShowShareButtons = false
   ShowPostNavLinks = true
   description = "I break and build stuff -"
+
+  shareButtons = ["linkedin"]
+
+  [params.profileMode]
+    enabled = true
+    title = "Leander Peter"
+    subtitle = "I engineer, build and break stuff."
+    buttons = [
+      { name = "Blog", url = "/posts/" },
+      { name = "About", url = "/about/" }
+    ]
 
 [[menu.main]]
   name = "About"
@@ -19,3 +30,12 @@ theme = "PaperMod"
   name = "Blog"
   url = "/posts/"
   weight = 2
+
+
+[[params.socialIcons]]
+name = "github"
+url = "https://github.com/leanderpeter"
+
+[[params.socialIcons]]
+name = "linkedin"
+url = "https://www.linkedin.com/in/leander-peter-943b021a7/"
