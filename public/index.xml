@@ -2,11 +2,25 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Leander Peter</title>
-    <link>https://leanderpeter.de/</link>
+    <link>http://localhost:1313/</link>
     <description>Recent content on Leander Peter</description>
     <generator>Hugo -- 0.147.8</generator>
     <language>en-us</language>
-    <lastBuildDate></lastBuildDate>
-    <atom:link href="https://leanderpeter.de/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 10 Jun 2025 18:45:06 +0200</lastBuildDate>
+    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Hello World</title>
+      <link>http://localhost:1313/posts/hello-world/</link>
+      <pubDate>Tue, 10 Jun 2025 18:45:06 +0200</pubDate>
+      <guid>http://localhost:1313/posts/hello-world/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>About</title>
+      <link>http://localhost:1313/about/</link>
+      <pubDate>Tue, 10 Jun 2025 18:44:46 +0200</pubDate>
+      <guid>http://localhost:1313/about/</guid>
+      <description></description>
+    </item>
   </channel>
 </rss>
