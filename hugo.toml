@@ -8,7 +8,7 @@ theme = "PaperMod"
   ShowReadingTime = true
   ShowShareButtons = true
   ShowPostNavLinks = true
-  description = "I break and build stuff"
+  description = "I break and build stuff -"
 
 [[menu.main]]
   name = "About"
