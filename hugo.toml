@@ -1,0 +1,21 @@
+baseURL = "https://leanderpeter.de"
+languageCode = "en-us"
+title = "Leander Peter"
+theme = "PaperMod"
+
+[params]
+  author = "Leander Peter"
+  ShowReadingTime = true
+  ShowShareButtons = true
+  ShowPostNavLinks = true
+  description = "I break and build stuff"
+
+[[menu.main]]
+  name = "About"
+  url = "/about/"
+  weight = 1
+
+[[menu.main]]
+  name = "Blog"
+  url = "/posts/"
+  weight = 2
