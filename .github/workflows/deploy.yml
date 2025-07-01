@@ -26,7 +26,7 @@ jobs:
         hugo-version: 'latest'
 
     - name: Build Hugo site
-      run: hugo --minify
+      run: hugo --minify --baseURL "https://leanderpeter.de/"
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
