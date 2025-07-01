@@ -1,5 +1,5 @@
 +++
-date = '2025-07-01T09:00:00+01:00'
+date = '2025-07-01T01:00:00+01:00'
 draft = true
 title = 'Why MCP Doesn’t Work: Lessons from the Trenches at FINN'
 mermaid = true
