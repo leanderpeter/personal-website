@@ -21,6 +21,10 @@ theme = "PaperMod"
       { name = "About", url = "/about/" }
     ]
 
+  [params.mermaid]
+    theme = "dark"
+    align = "center"
+
 [[menu.main]]
   name = "About"
   url = "/about/"
@@ -39,3 +43,10 @@ url = "https://github.com/leanderpeter"
 [[params.socialIcons]]
 name = "linkedin"
 url = "https://www.linkedin.com/in/leander-peter-943b021a7/"
+
+[markup]
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = true
+    lineNos = true
+    style = "monokai"

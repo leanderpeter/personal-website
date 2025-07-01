@@ -4,7 +4,7 @@ date = "2025-06-10T18:44:46+02:00"
 draft = false
 +++
 
-Hi, I’m Leander an engineer based in Munich. I like digging into RF signals, building tooling that actually helps people, and figuring out how to bend complex systems to my will (without breaking everything).
+Hi, I’m Leander, an engineer based in Munich. I enjoy reverse engineering complex systems, whether they're web architectures, RF signals, or Embedded, with the curiosity of a white hat hacker.
 
 By day, I’m a Senior Software Engineer at FINN one of Germany’s most exciting startups. I lead cross-department projects, dive deep into architecture, clean up legacy chaos, and build the things that don’t exist yet. I care a lot about ownership and don’t wait around when something needs fixing or pushing forward.
 

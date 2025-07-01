@@ -6,14 +6,15 @@
     <description>Recent content in Posts on Leander Peter</description>
     <generator>Hugo -- 0.147.8</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 10 Jun 2025 18:45:06 +0200</lastBuildDate>
+    <lastBuildDate>Tue, 01 Jul 2025 09:00:00 +0100</lastBuildDate>
     <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Hello World</title>
-      <link>http://localhost:1313/posts/hello-world/</link>
-      <pubDate>Tue, 10 Jun 2025 18:45:06 +0200</pubDate>
-      <guid>http://localhost:1313/posts/hello-world/</guid>
-      <description></description>
+      <title>Why MCP Doesn’t Work: Lessons from the Trenches at FINN</title>
+      <link>http://localhost:1313/posts/why-mcp-doesnt-work/</link>
+      <pubDate>Tue, 01 Jul 2025 09:00:00 +0100</pubDate>
+      <guid>http://localhost:1313/posts/why-mcp-doesnt-work/</guid>
+      <description>&lt;p&gt;When we first heard of function calling (MCP), we at the Customer Ops Team thought we’d found the silver bullet for customer care, finally! MCP (Model Context Protocol) promised a dream: giving our Slack chatbot (beloved Finny) the power to autonomously call any API, figure out exactly which endpoints to use, and seamlessly answer complex customer questions.&lt;/p&gt;
+&lt;p&gt;For context: FINN is a car subscription which handles the complexity of car ownership for B2C and B2B customers. Behind the scenes, that means hundreds of internal APIs powering everything from booking to billing, logistics to support.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

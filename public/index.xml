@@ -6,21 +6,21 @@
     <description>Recent content on Leander Peter</description>
     <generator>Hugo -- 0.147.8</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 10 Jun 2025 18:45:06 +0200</lastBuildDate>
+    <lastBuildDate>Tue, 01 Jul 2025 09:00:00 +0100</lastBuildDate>
     <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Hello World</title>
-      <link>http://localhost:1313/posts/hello-world/</link>
-      <pubDate>Tue, 10 Jun 2025 18:45:06 +0200</pubDate>
-      <guid>http://localhost:1313/posts/hello-world/</guid>
-      <description></description>
+      <title>Why MCP Doesn’t Work: Lessons from the Trenches at FINN</title>
+      <link>http://localhost:1313/posts/why-mcp-doesnt-work/</link>
+      <pubDate>Tue, 01 Jul 2025 09:00:00 +0100</pubDate>
+      <guid>http://localhost:1313/posts/why-mcp-doesnt-work/</guid>
+      <description>&lt;p&gt;When we first heard of function calling (MCP), we at the Customer Ops Team thought we’d found the silver bullet for customer care, finally! MCP (Model Context Protocol) promised a dream: giving our Slack chatbot (beloved Finny) the power to autonomously call any API, figure out exactly which endpoints to use, and seamlessly answer complex customer questions. As a software engineer in the Operations team, owning our Subscriptions-API and customer care tooling, I was pretty stoked. Until we started testing.&lt;/p&gt;</description>
     </item>
     <item>
       <title>About</title>
       <link>http://localhost:1313/about/</link>
       <pubDate>Tue, 10 Jun 2025 18:44:46 +0200</pubDate>
       <guid>http://localhost:1313/about/</guid>
-      <description>&lt;p&gt;Hi, I’m Leander an engineer based in Munich. I like digging into RF signals, building tooling that actually helps people, and figuring out how to bend complex systems to my will (without breaking everything).&lt;/p&gt;
+      <description>&lt;p&gt;Hi, I’m Leander, an engineer based in Munich. I enjoy reverse engineering complex systems, whether they&amp;rsquo;re web architectures, RF signals, or Embedded, with the curiosity of a white hat hacker.&lt;/p&gt;
 &lt;p&gt;By day, I’m a Senior Software Engineer at FINN one of Germany’s most exciting startups. I lead cross-department projects, dive deep into architecture, clean up legacy chaos, and build the things that don’t exist yet. I care a lot about ownership and don’t wait around when something needs fixing or pushing forward.&lt;/p&gt;</description>
     </item>
   </channel>

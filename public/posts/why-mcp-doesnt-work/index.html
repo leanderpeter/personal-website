@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Why MCP Doesn’t Work: Lessons from the Trenches at FINN | Leander Peter</title>
+<meta name="keywords" content="">
+<meta name="description" content="When we first heard of function calling (MCP), we at the Customer Ops Team thought we’d found the silver bullet for customer care, finally! MCP (Model Context Protocol) promised a dream: giving our Slack chatbot (beloved Finny) the power to autonomously call any API, figure out exactly which endpoints to use, and seamlessly answer complex customer questions.
+For context: FINN is a car subscription which handles the complexity of car ownership for B2C and B2B customers. Behind the scenes, that means hundreds of internal APIs powering everything from booking to billing, logistics to support.">
+<meta name="author" content="Leander Peter">
+<link rel="canonical" href="http://localhost:1313/posts/why-mcp-doesnt-work/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.8fe10233a706bc87f2e08b3cf97b8bd4c0a80f10675a143675d59212121037c0.css" integrity="sha256-j&#43;ECM6cGvIfy4Is8&#43;XuL1MCoDxBnWhQ2ddWSEhIQN8A=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/why-mcp-doesnt-work/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="Leander Peter (Alt + H)">Leander Peter</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/posts/" title="Blog">
+                    <span>Blog</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Why MCP Doesn’t Work: Lessons from the Trenches at FINN
+      <span class="entry-hint" title="Draft">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="35"
+          viewBox="0 -960 960 960"
+          fill="currentColor"
+        >
+          <path
+            d="M160-410v-60h300v60H160Zm0-165v-60h470v60H160Zm0-165v-60h470v60H160Zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22q0 11-4.5 22.5T862.09-380L643-160H520Zm300-263-37-37 37 37ZM580-220h38l121-122-18-19-19-18-122 121v38Zm141-141-19-18 37 37-18-19Z"
+          />
+        </svg>
+      </span>
+    </h1>
+    <div class="post-meta"><span title='2025-07-01 09:00:00 +0100 +0100'>July 1, 2025</span>&nbsp;·&nbsp;6 min&nbsp;·&nbsp;Leander Peter
+
+</div>
+  </header> 
+  <div class="post-content"><p>When we first heard of function calling (MCP), we at the Customer Ops Team thought we’d found the silver bullet for customer care, finally! MCP (Model Context Protocol) promised a dream: giving our Slack chatbot (beloved Finny) the power to autonomously call any API, figure out exactly which endpoints to use, and seamlessly answer complex customer questions.</p>
+<p>For context: FINN is a car subscription which handles the complexity of car ownership for B2C and B2B customers. Behind the scenes, that means hundreds of internal APIs powering everything from booking to billing, logistics to support.</p>
+<p>As a software engineer in the Operations team, owning our Subscriptions-API and customer care tooling, I was pretty stoked. Until we started testing.</p>
+<h3 id="the-dream-what-mcp-promised">The Dream: What MCP Promised<a hidden class="anchor" aria-hidden="true" href="#the-dream-what-mcp-promised">#</a></h3>
+<p>MCP would expose a interface for LLM&rsquo;s to dynamically explore and navigate APIs, combining responses on-the-fly to deliver perfect, human-like answers to any customer inquiry. Customer care agents could toss any question at Finny and relax while it flawlessly dug out the exact answers from the depths of our APIs. &ldquo;I&rsquo;ll never build internal tooling again, everything Chatbot!&rdquo; - I thought.</p>
+<h3 id="so-what-exactly-is-mcp">So, What Exactly is MCP?<a hidden class="anchor" aria-hidden="true" href="#so-what-exactly-is-mcp">#</a></h3>
+<p>MCP, or Model Context Protocol, is a structured way for Large Language Models (LLMs) like GPT-4.1 to use API&rsquo;s or any other interface. In essence MCP is a way to expose interfaces to LLM&rsquo;s. It consists of an MCP-Server that hosts the interfaces and connects to data sources, an MCP client that uses these interfaces, and an LLM that instructs the MCP client on which resources to access.</p>
+<h3 id="the-reality-check-why-it-didnt-work">The Reality Check: Why It Didn’t Work<a hidden class="anchor" aria-hidden="true" href="#the-reality-check-why-it-didnt-work">#</a></h3>
+<p>But, as the saying goes, “everyone has a plan until they get punched in the face.” After integrating just a handful of endpoints, our glorious vision began to collapse spectacularly.</p>
+<h4 id="issue-1-hallucinations-and-false-confidence">Issue #1: Hallucinations and False Confidence<a hidden class="anchor" aria-hidden="true" href="#issue-1-hallucinations-and-false-confidence">#</a></h4>
+<p>Finny, our overconfident AI intern, loved answering questions. The trouble? It often confidently gave completely wrong answers. With no clear understanding of its own limits, it misled customer care agents, who then had to untangle these creative hallucinations. For example, when asked if a customer’s car delivery was delayed, Finny checked the totally unrelated product info endpoint and cheerfully declared, “Nope, all good!” - spoiler alert: it wasn’t.</p>
+<figure>
+    <img loading="lazy" src="/images/finny-delayed-yes-no.jpg"
+         alt="Finny&#39;s mistaken response"/> <figcaption>
+            <p>Figure: Finny has not access to GET /delays but confidenlty states there are no delays found.</p>
+        </figcaption>
+</figure>
+
+<h4 id="issue-2-overwhelmed-by-api-complexity">Issue #2: Overwhelmed by API Complexity<a hidden class="anchor" aria-hidden="true" href="#issue-2-overwhelmed-by-api-complexity">#</a></h4>
+<p>Our APIs are complex, each containing around 80-100 endpoints with granular, CRUD-heavy details. Finny quickly drowned in this sea of data, unable to piece together critical connections. To determine if a car delivery was delayed, Finny needed to compare subscription dates with delivery schedules. Something it never managed.</p>
+<p><div class="mermaid">
+graph TD
+A[Start] --> B[Get Subscription by ID]
+B --> C[Get car_id from Subscription]
+C --> D[Get Car by car_id]
+D --> E[List Deliveries<br/>filter by rideType handover]
+E --> F[Filter out canceled deliveries]
+F --> G[Compare delivery date vs preferred handover date]
+G -->|Equal| H[No delay]
+G -->|Unequal| I[Operational Delay]
+</div>
+
+<em>Figure: Flow to determine if a delivery was delayed based on subscription and delivery data.</em></p>
+<h4 id="issue-3-scalability-nightmare">Issue #3: Scalability Nightmare<a hidden class="anchor" aria-hidden="true" href="#issue-3-scalability-nightmare">#</a></h4>
+<p>With just five endpoints integrated and another 300 endpoints looming ominously, scaling MCP felt about responsible as hardcoding API keys. Every new endpoint we added just piled on complexity without making Finny smarter.</p>
+<h3 id="real-life-code">Real-Life Code<a hidden class="anchor" aria-hidden="true" href="#real-life-code">#</a></h3>
+<h4 id="remote-mcp-server-cloud-deployment">Remote MCP Server (Cloud Deployment)<a hidden class="anchor" aria-hidden="true" href="#remote-mcp-server-cloud-deployment">#</a></h4>
+<p>Yeah, our MCP gateway is in AWS (nice try script kiddies, it’s token and WAF protected):</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-typescript" data-lang="typescript"><span style="display:flex;"><span><span style="color:#75715e">// MCP Gateway server setup (running remotely, secured via API token)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">post</span>(<span style="color:#e6db74">&#34;/mcp&#34;</span>, <span style="color:#a6e22e">checkApiKey</span>, <span style="color:#66d9ef">async</span> (<span style="color:#a6e22e">req</span>: <span style="color:#66d9ef">Request</span>, <span style="color:#a6e22e">res</span>: <span style="color:#66d9ef">Response</span>) <span style="color:#f92672">=&gt;</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">transport</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">StreamableHTTPServerTransport</span>();
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">on</span>(<span style="color:#e6db74">&#34;close&#34;</span>, () <span style="color:#f92672">=&gt;</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">transport</span>.<span style="color:#a6e22e">close</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">server</span>.<span style="color:#a6e22e">close</span>();
+</span></span><span style="display:flex;"><span>  });
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">server</span>.<span style="color:#a6e22e">connect</span>(<span style="color:#a6e22e">transport</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">transport</span>.<span style="color:#a6e22e">handleRequest</span>(<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>, <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">body</span>);
+</span></span><span style="display:flex;"><span>});
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="endpoint-definition---organized-still-not-enough">Endpoint Definition - Organized, Still Not Enough<a hidden class="anchor" aria-hidden="true" href="#endpoint-definition---organized-still-not-enough">#</a></h4>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-typescript" data-lang="typescript"><span style="display:flex;"><span><span style="color:#a6e22e">server</span>.<span style="color:#a6e22e">setRequestHandler</span>(<span style="color:#a6e22e">ListToolsRequestSchema</span>, () <span style="color:#f92672">=&gt;</span> ({
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">tools</span><span style="color:#f92672">:</span> [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">uri</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;tools://get_subscription_by_id&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">name</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;get_subscription_by_id&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">description</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;Returns subscription details by ID.&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">inputSchema</span>: <span style="color:#66d9ef">zodToJsonSchema</span>(<span style="color:#a6e22e">z</span>.<span style="color:#66d9ef">object</span>({ <span style="color:#a6e22e">subscription_id</span>: <span style="color:#66d9ef">z.string</span>() })),
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">outputSchema</span>: <span style="color:#66d9ef">zodToJsonSchema</span>(<span style="color:#a6e22e">SubscriptionSchema</span>),
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// more endpoints ...
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  ],
+</span></span><span style="display:flex;"><span>}));
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="when-mcp-went-totally-rogue">When MCP Went Totally Rogue<a hidden class="anchor" aria-hidden="true" href="#when-mcp-went-totally-rogue">#</a></h4>
+<p>Here’s where Finny confused itself spectacularly:</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-typescript" data-lang="typescript"><span style="display:flex;"><span><span style="color:#66d9ef">export</span> <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">fetchWebsiteConfiguration</span>(
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">params</span>: <span style="color:#66d9ef">WebsiteConfigParamsType</span>
+</span></span><span style="display:flex;"><span>) {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">upstream</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">`</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">process</span>.<span style="color:#a6e22e">env</span>.<span style="color:#a6e22e">FLEET_CONFIG_API_BASE</span><span style="color:#e6db74">}</span><span style="color:#e6db74">/api/v1/websiteConfigurations/</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">params</span>.<span style="color:#a6e22e">finn_car_id</span><span style="color:#e6db74">}</span><span style="color:#e6db74">`</span>;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">response</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">axios</span>.<span style="color:#66d9ef">get</span>(<span style="color:#a6e22e">upstream</span>, {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">headers</span><span style="color:#f92672">:</span> {
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;x-finn-actor&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;mcp-gateway&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;x-api-key&#34;</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">process</span>.<span style="color:#a6e22e">env</span>.<span style="color:#a6e22e">FLEET_CONFIG_API_KEY</span>,
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>  });
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">content</span><span style="color:#f92672">:</span> [{ <span style="color:#66d9ef">type</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;text&#34;</span>, <span style="color:#a6e22e">text</span>: <span style="color:#66d9ef">JSON.stringify</span>(<span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">data</span>, <span style="color:#66d9ef">null</span>, <span style="color:#ae81ff">2</span>) }],
+</span></span><span style="display:flex;"><span>  };
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Finny kept choosing this endpoint to answer delay-related questions simply because it was “car-related.” Oops.</p>
+<h3 id="but-wait-moments-of-magic-did-happen">But Wait, Moments of Magic Did Happen!<a hidden class="anchor" aria-hidden="true" href="#but-wait-moments-of-magic-did-happen">#</a></h3>
+<p>There were a few golden moments when MCP actually worked:</p>
+<p>Customer Care: “Did we accidentally charge €5 too much?”
+Finny: Fetches invoice data and nails it immediately: “Yep, spotted the €5 discrepancy!”</p>
+<p>This felt amazing but also highlighted the crucial point: MCP shines when APIs are crystal clear, queries are only CRUD and explicitly crafted for exact questions.</p>
+<h3 id="so-what-actually-works">So, What Actually Works?<a hidden class="anchor" aria-hidden="true" href="#so-what-actually-works">#</a></h3>
+<p>The key lesson is straightforward: endpoints need to be specifically crafted for MCP. Rather than exposing every single granular API, create explicit, aggregated endpoints like “getCarDelays” that encapsulate logic internally.</p>
+<p>At FINN, we’ve now use Decagon and Relevance-AI. These AI agent builder Lets us build custom Agent Operating Procedures (AOPs). These function like guarrails and expose the complex nature of the business process to the context of the LLM. This helps us to deliver accurate, predictable answers, minus the hallucinations.</p>
+<h3 id="conclusion-the-real-challenge-lies-beyond-mcp">Conclusion: The Real Challenge Lies Beyond MCP<a hidden class="anchor" aria-hidden="true" href="#conclusion-the-real-challenge-lies-beyond-mcp">#</a></h3>
+<p>The issue isn&rsquo;t with MCP itself. While today&rsquo;s AI models, including LLMs, excel at generating text, they fall short in understanding and solving complex internal business processes just by examining API documentation. It&rsquo;s unrealistic to expect an AI or even a new hire to navigate these complexities without the deep, contextual knowledge that our team members possess.</p>
+<p>At FINN, our strength lies in the ownership and expertise of our people, who understand how to integrate multiple API resources and calls into cohesive processes. We handle the complexity of car ownership internally, shielding our customers from these intricate processes. To truly address these &ldquo;context-challenges&rdquo;, we&rsquo;d need to document every employee&rsquo;s knowledge into an internal database, a task we all know is easier said than done. While integrating this knowledge into the context of an LLM might be an option, it&rsquo;s unlikely to be the short- or mid-term solution.</p>
+<p>For now, the path forward is clear: focus on streamlining processes, making them watertight, and automating them wherever possible. While MCP holds promise for the future, we have significant groundwork to lay in organizing and structuring our APIs and internal knowledge first.</p>
+<p>A promising use-case for MCP emerges when companies successfully encapsulate their complex business processes behind API endpoints. In such scenarios, MCP is better suited for external exposure rather than internal use. Imagine a world in 2030 where everyone has a fully integrated LLM that can manage tasks like getting a car subscription or booking a hotel in the south of France, acting as a personal assistant all powered by companies and their exposed MCP servers. This vision underscores the potential of MCP when complexity is effectively hidden and managed.</p>
+
+
+  </div><script
+  type="application/javascript"
+  src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"
+></script>
+<script>
+  var config = {
+    startOnLoad: true,
+    theme:
+      "dark",
+    align:
+      "center",
+  };
+  mermaid.initialize(config);
+</script>
+
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="http://localhost:1313/">Leander Peter</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
