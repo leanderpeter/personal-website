@@ -5,11 +5,11 @@ title = 'Why MCP Doesn’t Work: Lessons from the Trenches at FINN'
 mermaid = true
 +++
 
-When we first heard of function calling (MCP), we at the Customer Ops Team thought we’d found the silver bullet for customer care, finally! MCP (Model Context Protocol) promised a dream: giving our Slack chatbot (beloved Finny) the power to autonomously call any API, figure out exactly which endpoints to use, and seamlessly answer complex customer questions.
+When we first heard of function calling (MCP), we at the Customer Ops Team thought we’d finally found the silver bullet for customer care! MCP (Model Context Protocol) promised a dream: giving our Slack chatbot (beloved Finny) the power to autonomously call any API, figure out exactly which endpoints to use, and seamlessly answer complex customer questions.
 
-For context: FINN is a car subscription which handles the complexity of car ownership for B2C and B2B customers. Behind the scenes, that means hundreds of internal APIs powering everything from booking to billing, logistics to support.
+FINN is a car subscription service that simplifies car ownership for B2C and B2B customers. But under the hood, it’s complex. Hundreds of internal APIs power everything from booking to billing, logistics to returns. As a software engineer in the Operations team, I own parts of that complexity—like the Subscriptions API and our customer care tooling.
 
-As a software engineer in the Operations team, owning our Subscriptions-API and customer care tooling, I was pretty stoked. Until we started testing.
+The Customer Care team often faces tricky edge cases and fragmented data across multiple services. If MCP could stitch that data together automatically, we’d save countless hours of manual work. So yes, I was excited. Until we started testing.
 
 ### The Dream: What MCP Promised
 
@@ -109,20 +109,18 @@ export async function fetchWebsiteConfiguration(
 
 Finny kept choosing this endpoint to answer delay-related questions simply because it was “car-related.” Oops.
 
-### But Wait, Moments of Magic Did Happen!
+### What Actually Works (and Why)
 
-There were a few golden moments when MCP actually worked:
+Despite the challenges, there were a few golden moments when MCP genuinely impressed us:
 
-Customer Care: “Did we accidentally charge €5 too much?”
-Finny: Fetches invoice data and nails it immediately: “Yep, spotted the €5 discrepancy!”
+**Customer Care:** “Did we accidentally charge €5 too much?”  
+**Finny:** Fetches invoice data and nails it immediately: “Yep, spotted the €5 discrepancy!”
 
-This felt amazing but also highlighted the crucial point: MCP shines when APIs are crystal clear, queries are only CRUD and explicitly crafted for exact questions.
+These successes happened specifically because Finny accessed straightforward, CRUD-style endpoints designed for clear, direct queries. MCP shines brightest when APIs are crystal clear, data is explicitly structured, and the questions posed are simple and predictable.
 
-### So, What Actually Works?
+This highlights a critical lesson: to effectively leverage MCP, APIs need to be crafted specifically with MCP in mind. Rather than exposing hundreds of granular endpoints and expecting MCP to handle complex logic autonomously, it's far more effective to create explicit, aggregated endpoints—such as a dedicated `getCarDelays` endpoint—that encapsulate complexity internally.
 
-The key lesson is straightforward: endpoints need to be specifically crafted for MCP. Rather than exposing every single granular API, create explicit, aggregated endpoints like “getCarDelays” that encapsulate logic internally.
-
-At FINN, we’ve now use Decagon and Relevance-AI. These AI agent builder Lets us build custom Agent Operating Procedures (AOPs). These function like guarrails and expose the complex nature of the business process to the context of the LLM. This helps us to deliver accurate, predictable answers, minus the hallucinations.
+At FINN, we've taken this principle further by using AI agent-builders like Decagon and Relevance-AI. These tools allow us to define custom Agent Operating Procedures (AOPs) that act as guardrails, clearly communicating intricate business processes and contextual nuances directly to our LLMs. As a result, we achieve accurate, predictable, and contextually-aware answers, minimizing hallucinations and drastically reducing manual intervention.
 
 ### Conclusion: The Real Challenge Lies Beyond MCP
 
@@ -133,3 +131,5 @@ At FINN, our strength lies in the ownership and expertise of our people, who und
 Our immediate direction involves advancing on two fronts to meet effectively in the middle: On one hand, we are simplifying APIs by encapsulating complex business logic behind single, robust endpoints, reducing the need for intricate orchestration. On the other hand, we’re leveraging AI agent builders like Relevance-AI and Decagon, clearly communicating business processes and contexts through natural language instructions. This dual strategy will enables LLMs to effectively orchestrate API calls, intelligently handling edge cases while ensuring clarity and precision.
 
 A promising use-case for MCP emerges when companies successfully encapsulate complex processes behind clear API endpoints. In such scenarios, MCP shines brightest for external interactions. Imagine a future where fully integrated LLM assistants effortlessly book car subscriptions, hotel stays in southern France, and even manage entire trips, powered seamlessly by MCP servers that hide complexity behind intuitive interfaces. This future isn’t just possible, it offers a glimpse of what MCP could enable when complexity is truly abstracted away.
+
+Have you experimented with MCP or similar technologies? We'd love to hear about your journey—share your experiences and insights with us!
